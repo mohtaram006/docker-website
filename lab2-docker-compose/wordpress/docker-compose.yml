@@ -1,22 +1,42 @@
-wordpress:
-  image: wordpress:4.4
-  links:
-    - wordpress_db:mysql
-  ports:
-    - 8182:80
+version: '3.8'
 
-wordpress_db:
-  image: mariadb
-  environment:
-    MYSQL_ROOT_PASSWORD: test
+services:
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - wordpress_data:/var/www/html
 
-phpmyadmin:
-  image: corbinu/docker-phpmyadmin
-  links:
-    - wordpress_db:mysql
-  ports:
-    - 8181:80
-  environment:
-    MYSQL_USERNAME: root
-    MYSQL_ROOT_PASSWORD: test
+  db:
+    image: mysql:5.7
+    container_name: wordpressdb
+    restart: always
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - db_data:/var/lib/mysql
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    ports:
+      - "9090:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: rootpass
+
+volumes:
+  wordpress_data:
+  db_data:
